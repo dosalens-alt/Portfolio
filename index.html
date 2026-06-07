@@ -1,0 +1,806 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dosa Lens — Content Creation & Social Media Strategy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Cormorant Garamond', Georgia, serif; background: #FAFAF8; color: #1A1A2E; overflow-x: hidden; }
+
+    /* ══════════════════════════════════════
+       LOADING SCREEN
+    ══════════════════════════════════════ */
+    #loader {
+      position: fixed; inset: 0; background: #1A1A2E; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #loader.hide { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing: 0.3em;
+      text-transform: uppercase; color: #FAFAF8; margin-bottom: 2.5rem;
+      animation: fadeUp 0.8s ease forwards;
+    }
+    .loader-bar-wrap { width: 200px; height: 0.5px; background: rgba(255,255,255,0.15); position: relative; overflow: hidden; }
+    .loader-bar { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, #2B3A6B, #8AAAD4); animation: loadBar 1.8s ease forwards; }
+    .loader-pct { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #5A6880; margin-top: 1rem; letter-spacing: 0.1em; }
+    @keyframes loadBar { 0%{width:0} 100%{width:100%} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ══════════════════════════════════════
+       SCROLL PROGRESS
+    ══════════════════════════════════════ */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+      background: linear-gradient(90deg, #2B3A6B, #8AAAD4); z-index: 200; transition: width 0.1s linear;
+    }
+
+    /* ══════════════════════════════════════
+       NAVIGATION — DESKTOP
+    ══════════════════════════════════════ */
+    .nav {
+      background: #FAFAF8; border-bottom: 0.5px solid #E0D9CE;
+      padding: 0 3rem; height: 62px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo {
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      letter-spacing: 0.18em; color: #1A1A2E; text-transform: uppercase; text-decoration: none; z-index: 2;
+    }
+    .nav-links { display: flex; gap: 2.25rem; list-style: none; }
+    .nav-links a {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em;
+      color: #7A7060; text-decoration: none; text-transform: uppercase; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #1A1A2E; }
+    .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+    .nav-cta {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; background: #1A1A2E; color: #FAFAF8; border: none;
+      padding: 10px 22px; border-radius: 2px; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; transition: background 0.25s;
+      animation: glowPulse 2.5s ease-in-out infinite;
+    }
+    .nav-cta:hover { background: #2B3A6B; }
+    @keyframes glowPulse {
+      0%  { box-shadow: 0 0 0 0 rgba(43,58,107,0.0); }
+      50% { box-shadow: 0 0 18px 4px rgba(43,58,107,0.45); }
+      100%{ box-shadow: 0 0 0 0 rgba(43,58,107,0.0); }
+    }
+
+    /* ══════════════════════════════════════
+       HAMBURGER BUTTON
+    ══════════════════════════════════════ */
+    .hamburger {
+      display: none; flex-direction: column; justify-content: center;
+      gap: 5px; width: 36px; height: 36px; background: none; border: none;
+      cursor: pointer; padding: 4px; z-index: 102;
+    }
+    .hamburger span {
+      display: block; height: 1px; background: #1A1A2E;
+      transition: transform 0.35s ease, opacity 0.35s ease, width 0.35s ease;
+      transform-origin: center;
+    }
+    .hamburger span:nth-child(1) { width: 24px; }
+    .hamburger span:nth-child(2) { width: 18px; }
+    .hamburger span:nth-child(3) { width: 24px; }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); width: 24px; }
+    .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); width: 24px; }
+
+    /* ══════════════════════════════════════
+       MOBILE MENU DRAWER
+    ══════════════════════════════════════ */
+    .mobile-menu {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 80%; max-width: 320px;
+      background: #FAFAF8; z-index: 101; padding: 5rem 2.5rem 3rem;
+      display: flex; flex-direction: column; justify-content: space-between;
+      transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      border-left: 0.5px solid #E0D9CE;
+    }
+    .mobile-menu.open { transform: translateX(0); }
+    .mobile-menu-overlay {
+      position: fixed; inset: 0; background: rgba(26,26,46,0.5); z-index: 100;
+      opacity: 0; visibility: hidden; transition: opacity 0.4s, visibility 0.4s;
+      backdrop-filter: blur(3px);
+    }
+    .mobile-menu-overlay.open { opacity: 1; visibility: visible; }
+    .mobile-nav-links { list-style: none; display: flex; flex-direction: column; gap: 0; }
+    .mobile-nav-links li { border-bottom: 0.5px solid #E0D9CE; }
+    .mobile-nav-links a {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing: 0.12em;
+      color: #1A1A2E; text-decoration: none; text-transform: uppercase;
+      padding: 1.25rem 0; display: block; transition: color 0.2s;
+    }
+    .mobile-nav-links a:hover { color: #2B3A6B; }
+    .mobile-cta {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.14em;
+      text-transform: uppercase; background: #1A1A2E; color: #FAFAF8;
+      padding: 14px; border-radius: 2px; text-decoration: none;
+      display: block; text-align: center; margin-top: 2rem;
+      animation: glowPulse 2.5s ease-in-out infinite;
+    }
+    .mobile-footer-links { display: flex; gap: 1.5rem; margin-top: 2rem; }
+    .mobile-footer-links a {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #9A8E7A; text-decoration: none;
+    }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 92vh; }
+    .hero-left { padding: 5rem 3rem; display: flex; flex-direction: column; justify-content: center; background: #FAFAF8; }
+    .hero-tag {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: #9A8E7A; margin-bottom: 1.75rem;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-tag::before { content: ''; width: 28px; height: 1px; background: #9A8E7A; flex-shrink: 0; }
+    .hero-h1 { font-size: 62px; line-height: 0.95; color: #1A1A2E; margin-bottom: 1.25rem; font-weight: 300; }
+    .hero-h1 em { font-style: italic; color: #2B3A6B; font-weight: 300; }
+    .typed-word { border-right: 2px solid #2B3A6B; padding-right: 4px; }
+    .hero-sub { font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.9; color: #6B6050; max-width: 400px; margin-bottom: 2.5rem; }
+    .hero-btns { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .btn-primary {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; background: #1A1A2E; color: #FAFAF8; border: none;
+      padding: 13px 28px; border-radius: 2px; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; transition: background 0.25s;
+      animation: glowPulse 2.5s ease-in-out infinite;
+    }
+    .btn-primary:hover { background: #2B3A6B; }
+    .btn-ghost {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; background: transparent; color: #2B3A6B; border: none;
+      padding: 13px 0; cursor: pointer; border-bottom: 1px solid #2B3A6B;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { color: #1A1A2E; border-color: #1A1A2E; }
+
+    /* ══════════════════════════════════════
+       HERO IMAGE
+    ══════════════════════════════════════ */
+    .hero-right { position: relative; overflow: hidden; background: #2B3A6B; min-height: 92vh; }
+    .hero-right img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .hero-right-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(43,58,107,0.18) 0%, transparent 50%); pointer-events: none; }
+    .hero-badge {
+      position: absolute; bottom: 2.5rem; left: 2.5rem;
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; background: rgba(250,250,248,0.12);
+      border: 0.5px solid rgba(250,250,248,0.35); color: #F0EDE8;
+      padding: 7px 16px; border-radius: 2px; backdrop-filter: blur(6px);
+    }
+
+    /* ══════════════════════════════════════
+       RESULTS BAR
+    ══════════════════════════════════════ */
+    .results-bar { background: #2B3A6B; padding: 2rem 3rem; }
+    .results-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .result-item { text-align: center; flex: 1; }
+    .result-num { font-size: 32px; font-weight: 300; color: #FAFAF8; font-family: 'Cormorant Garamond', serif; }
+    .result-label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #8A9BB8; margin-top: 5px; line-height: 1.55; }
+    .result-divider { width: 0.5px; background: rgba(255,255,255,0.15); align-self: stretch; min-height: 52px; }
+
+    /* ══════════════════════════════════════
+       SECTIONS
+    ══════════════════════════════════════ */
+    .section { padding: 5rem 3rem; }
+    .section-cream { background: #FAFAF8; }
+    .section-sand { background: #F5F0E8; }
+    .section-navy { background: #1A1A2E; }
+    .section-label { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #9A8E7A; margin-bottom: 0.85rem; }
+    .section-label-lt { color: #7A8FAA; }
+    .section-title { font-size: 34px; font-weight: 300; color: #1A1A2E; line-height: 1.15; margin-bottom: 1.25rem; }
+    .section-title-lt { color: #FAFAF8; }
+    .section-body { font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.9; color: #6B6050; }
+    .section-body-lt { color: #9AAABF; }
+
+    /* ══════════════════════════════════════
+       ABOUT
+    ══════════════════════════════════════ */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem; align-items: start; }
+    .proof-card { background: #FAFAF8; border: 0.5px solid #E0D9CE; border-radius: 2px; padding: 1.75rem; }
+    .proof-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid #EDE7D9; }
+    .proof-title { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: #1A1A2E; }
+    .proof-subtitle { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #9A8E7A; margin-top: 4px; }
+    .proof-badge { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; background: #EDE7D9; color: #6B6050; padding: 4px 10px; border-radius: 1px; white-space: nowrap; }
+    .proof-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 0.5px solid #EDE7D9; }
+    .proof-row:last-of-type { border-bottom: none; }
+    .proof-key { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B6050; }
+    .proof-val { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: #2B3A6B; }
+    .proof-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #9A8E7A; margin-top: 1.25rem; line-height: 1.65; font-style: italic; }
+
+    /* ══════════════════════════════════════
+       SERVICES
+    ══════════════════════════════════════ */
+    .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.75rem; }
+    .service-card { background: #FAFAF8; border: 0.5px solid #E0D9CE; border-radius: 2px; padding: 2.25rem; display: flex; flex-direction: column; }
+    .service-card.featured { background: #2B3A6B; border-color: #2B3A6B; }
+    .featured-badge { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; background: rgba(255,255,255,0.14); color: #C8D4E8; padding: 4px 12px; border-radius: 1px; margin-bottom: 1.25rem; width: fit-content; }
+    .service-icon { width: 42px; height: 42px; background: #1A1A2E; border-radius: 2px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; font-size: 16px; color: #FAFAF8; }
+    .service-card.featured .service-icon { background: rgba(255,255,255,0.14); }
+    .service-name { font-size: 20px; font-weight: 300; color: #1A1A2E; margin-bottom: 0.6rem; }
+    .service-card.featured .service-name { color: #FAFAF8; }
+    .service-desc { font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.8; color: #6B6050; margin-bottom: 1.5rem; flex: 1; }
+    .service-card.featured .service-desc { color: #C8D4E8; }
+    .service-list { list-style: none; padding: 0; margin-bottom: 1.75rem; }
+    .service-list li { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #6B6050; padding: 7px 0; border-bottom: 0.5px solid #EDE7D9; display: flex; align-items: center; gap: 10px; }
+    .service-card.featured .service-list li { color: #C8D4E8; border-bottom-color: rgba(255,255,255,0.1); }
+    .service-list li:last-child { border-bottom: none; }
+    .service-list li::before { content: '✓'; color: #2B3A6B; font-size: 11px; flex-shrink: 0; }
+    .service-card.featured .service-list li::before { color: #8AAAD4; }
+    .service-btn { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; width: 100%; background: #1A1A2E; color: #FAFAF8; border: none; padding: 13px; border-radius: 2px; cursor: pointer; margin-top: auto; text-decoration: none; display: block; text-align: center; transition: opacity 0.2s; }
+    .service-btn:hover { opacity: 0.82; }
+    .service-card.featured .service-btn { background: #FAFAF8; color: #1A1A2E; }
+
+    /* ══════════════════════════════════════
+       NICHES
+    ══════════════════════════════════════ */
+    .niches-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2.75rem; }
+    .niche-card { border: 0.5px solid #2E3A52; border-radius: 2px; padding: 1.4rem; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s, transform 0.2s; }
+    .niche-card:hover { border-color: #8AAAD4; transform: translateY(-3px); }
+    .niche-icon { font-size: 20px; color: #8AAAD4; }
+    .niche-name { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #C8D4E8; }
+
+    /* ══════════════════════════════════════
+       PORTFOLIO
+    ══════════════════════════════════════ */
+    .portfolio-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 2.75rem; }
+    .portfolio-cell { aspect-ratio: 4/5; border-radius: 2px; border: 0.5px solid #E0D9CE; position: relative; overflow: hidden; background: #EDE7D9; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .portfolio-cell:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(26,26,46,0.15); }
+    .portfolio-cell img, .portfolio-cell video { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.45s ease; }
+    .portfolio-cell:hover img, .portfolio-cell:hover video { transform: scale(1.06); }
+    .portfolio-overlay { position: absolute; inset: 0; background: rgba(26,26,46,0.5); opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; justify-content: center; }
+    .portfolio-cell:hover .portfolio-overlay { opacity: 1; }
+    .portfolio-play { width: 44px; height: 44px; border: 1.5px solid #FAFAF8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FAFAF8; font-size: 16px; backdrop-filter: blur(4px); }
+    .portfolio-tag { position: absolute; bottom: 0.75rem; left: 0.75rem; z-index: 2; font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A2E; background: #FAFAF8; padding: 4px 9px; border-radius: 1px; }
+
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(20,20,32,0.92); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.35s, visibility 0.35s; backdrop-filter: blur(8px); padding: 1rem; }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-box { position: relative; max-width: 680px; width: 100%; max-height: 90vh; border-radius: 2px; overflow: hidden; transform: scale(0.92); transition: transform 0.35s ease; }
+    .modal-backdrop.open .modal-box { transform: scale(1); }
+    .modal-box img, .modal-box video { width: 100%; height: auto; max-height: 85vh; object-fit: contain; display: block; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(250,250,248,0.12); border: 0.5px solid rgba(250,250,248,0.3); color: #FAFAF8; padding: 6px 14px; border-radius: 2px; cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s; }
+    .modal-close:hover { background: rgba(250,250,248,0.22); }
+    .modal-label { position: absolute; bottom: 0; left: 0; right: 0; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #C8D4E8; background: rgba(26,26,46,0.85); padding: 10px 16px; backdrop-filter: blur(4px); }
+
+    /* ══════════════════════════════════════
+       PROCESS
+    ══════════════════════════════════════ */
+    .process-list { margin-top: 2.75rem; }
+    .process-item { display: grid; grid-template-columns: 90px 1fr; gap: 1.25rem; padding: 1.75rem 0; border-bottom: 0.5px solid #E0D9CE; opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .process-item.visible { opacity: 1; transform: translateY(0); }
+    .process-item:last-child { border-bottom: none; }
+    .process-num { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #9A8E7A; padding-top: 3px; }
+    .process-text { font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.85; color: #6B6050; }
+    .process-text strong { color: #1A1A2E; font-weight: 500; }
+
+    /* ══════════════════════════════════════
+       CONTACT
+    ══════════════════════════════════════ */
+    .contact-inner { max-width: 560px; margin: 0 auto; text-align: center; }
+    .contact-form { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 2.25rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-input, .form-select, .form-textarea { background: #243352; border: 0.5px solid #2E3A52; color: #FAFAF8; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 13px 15px; border-radius: 2px; outline: none; width: 100%; transition: border-color 0.2s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #8AAAD4; }
+    .form-input::placeholder, .form-textarea::placeholder { color: #7A8FAA; }
+    .form-select { color: #8A9BB8; appearance: none; cursor: pointer; }
+    .form-textarea { resize: none; height: 100px; }
+    .form-submit { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; background: #FAFAF8; color: #1A1A2E; border: none; padding: 15px; border-radius: 2px; cursor: pointer; font-weight: 500; width: 100%; transition: opacity 0.2s; animation: glowPulse 2.5s ease-in-out infinite; }
+    .form-submit:hover { opacity: 0.88; }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .footer { background: #141420; padding: 1.75rem 3rem; display: flex; align-items: center; justify-content: space-between; }
+    .footer-logo { font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #5A5870; }
+    .footer-links { display: flex; gap: 1.75rem; }
+    .footer-links a { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #5A5870; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: #9AAABF; }
+
+    /* ══════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════ */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1A1A2E; color: #FAFAF8; font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 11px 24px; border-radius: 2px; opacity: 0; transition: opacity 0.3s; pointer-events: none; letter-spacing: 0.06em; z-index: 9999; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE — TABLET 900px
+    ══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      /* Nav */
+      .nav { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      .nav-cta { display: none; }
+      .hamburger { display: flex; }
+
+      /* Hero */
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 3.5rem 1.5rem 2.5rem; order: 2; }
+      .hero-right { min-height: 65vw; order: 1; }
+      .hero-h1 { font-size: 42px; }
+      .hero-badge { bottom: 1.25rem; left: 1.25rem; font-size: 9px; padding: 5px 12px; }
+
+      /* Results */
+      .results-bar { padding: 1.5rem; }
+      .result-num { font-size: 26px; }
+      .result-label { font-size: 10px; }
+
+      /* Sections */
+      .section { padding: 3.5rem 1.5rem; }
+      .section-title { font-size: 28px; }
+
+      /* About */
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+
+      /* Services */
+      .services-grid { grid-template-columns: 1fr; }
+
+      /* Niches */
+      .niches-grid { grid-template-columns: repeat(2, 1fr); }
+
+      /* Portfolio */
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+
+      /* Process */
+      .process-item { grid-template-columns: 1fr; gap: 0.5rem; }
+      .process-num { font-size: 10px; }
+
+      /* Contact */
+      .form-row { grid-template-columns: 1fr; }
+
+      /* Footer */
+      .footer { padding: 1.5rem; flex-direction: column; gap: 1.25rem; text-align: center; }
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE — MOBILE 480px
+    ══════════════════════════════════════ */
+    @media (max-width: 480px) {
+      .hero-h1 { font-size: 34px; line-height: 1.0; }
+      .hero-sub { font-size: 13px; }
+      .hero-right { min-height: 80vw; }
+      .hero-btns { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .btn-primary, .btn-ghost { width: 100%; text-align: center; justify-content: center; }
+      .results-row { flex-direction: column; gap: 1.25rem; }
+      .result-divider { width: 80%; height: 0.5px; min-height: 0; align-self: center; }
+      .niches-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .niche-card { padding: 1rem; }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+      .section-title { font-size: 24px; }
+      .mobile-menu { width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <p class="loader-logo">Dosa Lens</p>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <p class="loader-pct" id="loader-pct">0%</p>
+</div>
+
+<!-- SCROLL PROGRESS -->
+<div id="progress-bar"></div>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="mobile-menu-overlay" id="mob-overlay" onclick="closeMenu()"></div>
+
+<!-- MOBILE MENU DRAWER -->
+<div class="mobile-menu" id="mob-menu">
+  <ul class="mobile-nav-links">
+    <li><a href="#services" onclick="closeMenu()">Services</a></li>
+    <li><a href="#work" onclick="closeMenu()">Work</a></li>
+    <li><a href="#results" onclick="closeMenu()">Results</a></li>
+    <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
+  </ul>
+  <div>
+    <a href="https://wa.me/212695909314?text=Hi%20Dosa%20Lens!%20%F0%9F%91%8B%20I'm%20interested%20in%20working%20together." target="_blank" class="mobile-cta" onclick="closeMenu()">Work with me</a>
+    <div class="mobile-footer-links">
+      <a href="https://www.instagram.com/dosalens/" target="_blank">Instagram</a>
+      <a href="https://linktr.ee/dosalens" target="_blank">Linktree</a>
+      <a href="mailto:dosalens@outlook.com">Email</a>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModalBtn()">Close ✕</button>
+    <div id="modal-content"></div>
+    <div class="modal-label" id="modal-label"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════ -->
+<nav class="nav">
+  <a href="#" class="nav-logo">Dosa Lens</a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://wa.me/212695909314?text=Hi%20Dosa%20Lens!%20%F0%9F%91%8B%20I'm%20interested%20in%20working%20together." target="_blank" class="nav-cta">Work with me</a>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-tag">Strategy · Content · Growth</p>
+    <h1 class="hero-h1">
+      Your brand,<br>built to<br>
+      <em><span class="typed-word" id="typed"></span></em>
+    </h1>
+    <p class="hero-sub">Full-service social media strategy and content creation — from idea to execution, for brands that are serious about results.</p>
+    <div class="hero-btns">
+      <a href="#work" class="btn-primary">See my work →</a>
+      <button class="btn-ghost" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">View services</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img src="images/IMG_6727.JPG.jpeg" alt="Dosa Lens — Content Creator & Social Media Strategist">
+    <div class="hero-right-overlay"></div>
+    <div class="hero-badge">Available for new clients</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     RESULTS BAR
+══════════════════════════════════════════ -->
+<div class="results-bar" id="results">
+  <div class="results-row">
+    <div class="result-item">
+      <p class="result-num">+2,000</p>
+      <p class="result-label">New followers<br>in 14 days</p>
+    </div>
+    <div class="result-divider"></div>
+    <div class="result-item">
+      <p class="result-num">107K</p>
+      <p class="result-label">Reel views<br>one client account</p>
+    </div>
+    <div class="result-divider"></div>
+    <div class="result-item">
+      <p class="result-num">10+</p>
+      <p class="result-label">Brands across<br>multiple niches</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════ -->
+<section class="section section-cream" id="about">
+  <div class="about-grid">
+    <div>
+      <p class="section-label">About</p>
+      <h2 class="section-title">Not just content.<br>A full growth system.</h2>
+      <p class="section-body">Most brands post and hope. I build a strategy first — studying your niche, your audience, and what's actually working right now — then create content designed to perform.</p>
+      <p class="section-body" style="margin-top:1.1rem">From trend research and script writing to shooting, editing, and managing your entire presence — every strategy is built around your specific goals.</p>
+    </div>
+    <div>
+      <div class="proof-card">
+        <div class="proof-header">
+          <div>
+            <p class="proof-title">Client result</p>
+            <p class="proof-subtitle">Social media management · 2 weeks</p>
+          </div>
+          <span class="proof-badge">Real case</span>
+        </div>
+        <div class="proof-row"><span class="proof-key">Followers gained</span><span class="proof-val">+2,000</span></div>
+        <div class="proof-row"><span class="proof-key">Top reel views</span><span class="proof-val">107,000</span></div>
+        <div class="proof-row"><span class="proof-key">Paid promotion used</span><span class="proof-val">None</span></div>
+        <div class="proof-row"><span class="proof-key">Timeframe</span><span class="proof-val">14 days</span></div>
+        <p class="proof-note">Every strategy is built specifically around your brand, niche, and goals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════ -->
+<section class="section section-sand" id="services">
+  <p class="section-label">Services</p>
+  <h2 class="section-title">Two ways to work together</h2>
+  <div class="services-grid">
+    <div class="service-card featured">
+      <span class="featured-badge">Most popular</span>
+      <div class="service-icon">◈</div>
+      <h3 class="service-name">Social Media Management</h3>
+      <p class="service-desc">Full strategy and execution. I run your social media end-to-end — trend research, scripting, content creation, posting, engagement, and monthly reporting.</p>
+      <ul class="service-list">
+        <li>Trend &amp; competitor research</li>
+        <li>Monthly content strategy</li>
+        <li>Script writing &amp; creative direction</li>
+        <li>Content creation — photo &amp; video</li>
+        <li>Posting, captions &amp; hashtags</li>
+        <li>Community engagement &amp; DMs</li>
+        <li>Monthly analytics report</li>
+      </ul>
+      <a href="https://wa.me/212695909314?text=Hi%20Dosa%20Lens!%20I'm%20interested%20in%20Social%20Media%20Management." target="_blank" class="service-btn">Get a quote →</a>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">◎</div>
+      <h3 class="service-name">UGC &amp; Content Creation</h3>
+      <p class="service-desc">Scroll-stopping photo and video content for your brand — delivered ready to post, run as ads, or use on your website.</p>
+      <ul class="service-list">
+        <li>Product &amp; lifestyle photography</li>
+        <li>Short-form video &amp; reels</li>
+        <li>Real estate property tours</li>
+        <li>Unboxing &amp; review content</li>
+        <li>Ad-ready UGC packages</li>
+        <li>Brand storytelling content</li>
+      </ul>
+      <a href="https://wa.me/212695909314?text=Hi%20Dosa%20Lens!%20I'm%20interested%20in%20UGC%20and%20Content%20Creation." target="_blank" class="service-btn">Get a quote →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     NICHES
+══════════════════════════════════════════ -->
+<section class="section section-navy">
+  <p class="section-label section-label-lt">Niches</p>
+  <h2 class="section-title section-title-lt">I work across every niche</h2>
+  <div class="niches-grid">
+    <div class="niche-card"><div class="niche-icon">⌂</div><span class="niche-name">Real estate &amp; property</span></div>
+    <div class="niche-card"><div class="niche-icon">◇</div><span class="niche-name">Jewelry &amp; accessories</span></div>
+    <div class="niche-card"><div class="niche-icon">✦</div><span class="niche-name">Fashion &amp; Sfifa</span></div>
+    <div class="niche-card"><div class="niche-icon">◎</div><span class="niche-name">Beauty &amp; skincare</span></div>
+    <div class="niche-card"><div class="niche-icon">✂</div><span class="niche-name">Salons &amp; beauty centers</span></div>
+    <div class="niche-card"><div class="niche-icon">♡</div><span class="niche-name">Health &amp; wellness</span></div>
+    <div class="niche-card"><div class="niche-icon">✚</div><span class="niche-name">Doctors &amp; clinics</span></div>
+    <div class="niche-card"><div class="niche-icon">✏</div><span class="niche-name">Designers &amp; creatives</span></div>
+    <div class="niche-card"><div class="niche-icon">▣</div><span class="niche-name">Products &amp; e-commerce</span></div>
+    <div class="niche-card"><div class="niche-icon">★</div><span class="niche-name">Events &amp; occasions</span></div>
+    <div class="niche-card"><div class="niche-icon">☕</div><span class="niche-name">Coffee &amp; hospitality</span></div>
+    <div class="niche-card"><div class="niche-icon">+</div><span class="niche-name">And more — let's talk</span></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     PORTFOLIO
+══════════════════════════════════════════ -->
+<section class="section section-cream" id="work">
+  <p class="section-label">Portfolio</p>
+  <h2 class="section-title">My work</h2>
+  <div class="portfolio-grid">
+    <div class="portfolio-cell" onclick="openModal('images/IMG_1604.jpeg','photo','Skincare · UGC')">
+      <img src="images/IMG_1604.jpeg" alt="Skincare UGC">
+      <div class="portfolio-overlay"><div class="portfolio-play">⊕</div></div>
+      <span class="portfolio-tag">Skincare · UGC</span>
+    </div>
+    <div class="portfolio-cell" onclick="openModal('images/IMG_6619.jpeg','photo','Real estate')">
+      <img src="images/IMG_6619.jpeg" alt="Real Estate">
+      <div class="portfolio-overlay"><div class="portfolio-play">⊕</div></div>
+      <span class="portfolio-tag">Real estate</span>
+    </div>
+    <div class="portfolio-cell" onclick="openModal('images/IMG_6971.PNG','photo','Coffee shop')">
+      <img src="images/IMG_6971.PNG" alt="Coffee Shop">
+      <div class="portfolio-overlay"><div class="portfolio-play">⊕</div></div>
+      <span class="portfolio-tag">Coffee shop</span>
+    </div>
+    <div class="portfolio-cell" onclick="openModal('images/IMG_4238.JPG.jpeg','photo','Fashion · Sfifa')">
+      <img src="images/IMG_4238.JPG.jpeg" alt="Fashion Sfifa">
+      <div class="portfolio-overlay"><div class="portfolio-play">⊕</div></div>
+      <span class="portfolio-tag">Fashion · Sfifa</span>
+    </div>
+    <div class="portfolio-cell" onclick="openModal('images/IMG_7056.jpeg','photo','Events')">
+      <img src="images/IMG_7056.jpeg" alt="Events">
+      <div class="portfolio-overlay"><div class="portfolio-play">⊕</div></div>
+      <span class="portfolio-tag">Events</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     PROCESS
+══════════════════════════════════════════ -->
+<section class="section section-sand">
+  <p class="section-label">Process</p>
+  <h2 class="section-title">How I work</h2>
+  <div class="process-list">
+    <div class="process-item">
+      <span class="process-num">01 — Research</span>
+      <p class="process-text"><strong>I study your brand, niche, and competitors before anything else.</strong> Trend research, audience analysis, and a strategy built around your specific goals — not a template.</p>
+    </div>
+    <div class="process-item">
+      <span class="process-num">02 — Strategy</span>
+      <p class="process-text"><strong>You get a monthly content plan — ideas, scripts, and formats tailored to what's working right now.</strong> No guessing. No recycled ideas.</p>
+    </div>
+    <div class="process-item">
+      <span class="process-num">03 — Creation</span>
+      <p class="process-text"><strong>I create everything — photos, reels, captions, hashtags.</strong> Content that looks professional and feels authentic at the same time.</p>
+    </div>
+    <div class="process-item">
+      <span class="process-num">04 — Execution</span>
+      <p class="process-text"><strong>Posting, engagement, community management, and monthly reporting.</strong> You see exactly what's working and where your account is growing — every month.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CONTACT
+══════════════════════════════════════════ -->
+<section class="section section-navy" id="contact">
+  <div class="contact-inner">
+    <p class="section-label section-label-lt">Contact</p>
+    <h2 class="section-title section-title-lt">Ready to grow?</h2>
+    <p class="section-body section-body-lt">Tell me about your brand and what you're looking to achieve — I'll get back to you within 24 hours.</p>
+    <div class="contact-form">
+      <div class="form-row">
+        <input class="form-input" type="text" id="fname" placeholder="Your name">
+        <input class="form-input" type="text" id="fbrand" placeholder="Brand / business name">
+      </div>
+      <select class="form-select" id="fservice">
+        <option disabled selected>What do you need?</option>
+        <option>Social media management</option>
+        <option>UGC &amp; content creation</option>
+        <option>Both</option>
+      </select>
+      <select class="form-select" id="fniche">
+        <option disabled selected>Your niche</option>
+        <option>Real estate &amp; property</option>
+        <option>Jewelry &amp; accessories</option>
+        <option>Fashion &amp; Sfifa</option>
+        <option>Beauty &amp; skincare</option>
+        <option>Salon or beauty center</option>
+        <option>Health &amp; wellness</option>
+        <option>Doctors &amp; clinics</option>
+        <option>Designers &amp; creatives</option>
+        <option>Products &amp; e-commerce</option>
+        <option>Events &amp; occasions</option>
+        <option>Coffee &amp; hospitality</option>
+        <option>Other</option>
+      </select>
+      <textarea class="form-textarea" id="fmsg" placeholder="Tell me about your brand and your goals..."></textarea>
+      <button class="form-submit" onclick="sendWA()">Send via WhatsApp →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer class="footer">
+  <span class="footer-logo">Dosa Lens</span>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/dosalens/" target="_blank">Instagram</a>
+    <a href="https://linktr.ee/dosalens" target="_blank">Linktree</a>
+    <a href="mailto:dosalens@outlook.com">Email</a>
+  </div>
+</footer>
+
+<script>
+  /* ── LOADER ── */
+  var pct = 0;
+  var pctEl = document.getElementById('loader-pct');
+  var iv = setInterval(function(){
+    pct += Math.floor(Math.random() * 18) + 5;
+    if(pct >= 100){ pct = 100; clearInterval(iv); }
+    pctEl.textContent = pct + '%';
+  }, 180);
+  window.addEventListener('load', function(){
+    setTimeout(function(){ document.getElementById('loader').classList.add('hide'); }, 1900);
+  });
+
+  /* ── SCROLL PROGRESS ── */
+  window.addEventListener('scroll', function(){
+    var pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  });
+
+  /* ── TYPING EFFECT ── */
+  var words = ['grow.', 'convert.', 'connect.', 'stand out.'];
+  var wi = 0, ci = 0, deleting = false;
+  var typedEl = document.getElementById('typed');
+  function type(){
+    var current = words[wi];
+    if(!deleting){
+      typedEl.textContent = current.slice(0, ci + 1); ci++;
+      if(ci === current.length){ deleting = true; setTimeout(type, 1800); return; }
+    } else {
+      typedEl.textContent = current.slice(0, ci - 1); ci--;
+      if(ci === 0){ deleting = false; wi = (wi + 1) % words.length; }
+    }
+    setTimeout(type, deleting ? 60 : 100);
+  }
+  setTimeout(type, 2200);
+
+  /* ── HAMBURGER MENU ── */
+  function toggleMenu(){
+    var menu = document.getElementById('mob-menu');
+    var overlay = document.getElementById('mob-overlay');
+    var burger = document.getElementById('hamburger');
+    menu.classList.toggle('open');
+    overlay.classList.toggle('open');
+    burger.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMenu(){
+    document.getElementById('mob-menu').classList.remove('open');
+    document.getElementById('mob-overlay').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── MODAL ── */
+  function openModal(src, type, label){
+    var content = document.getElementById('modal-content');
+    document.getElementById('modal-label').textContent = label;
+    content.innerHTML = '';
+    if(type === 'photo'){
+      var img = document.createElement('img'); img.src = src; img.alt = label;
+      content.appendChild(img);
+    } else {
+      var vid = document.createElement('video');
+      vid.src = src; vid.autoplay = true; vid.muted = true; vid.loop = true; vid.controls = true;
+      vid.setAttribute('playsinline','');
+      content.appendChild(vid);
+    }
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModalBtn(){
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('modal-content').innerHTML = '';
+  }
+  function closeModal(e){ if(e.target === document.getElementById('modal')) closeModalBtn(); }
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModalBtn(); });
+
+  /* ── PROCESS ANIMATION ── */
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e, i){
+      if(e.isIntersecting) setTimeout(function(){ e.target.classList.add('visible'); }, i * 150);
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.process-item').forEach(function(el){ observer.observe(el); });
+
+  /* ── WHATSAPP FORM ── */
+  function sendWA(){
+    var name  = document.getElementById('fname').value.trim()  || '(not provided)';
+    var brand = document.getElementById('fbrand').value.trim() || '(not provided)';
+    var svc   = document.getElementById('fservice').value      || '(not selected)';
+    var niche = document.getElementById('fniche').value        || '(not selected)';
+    var msg   = document.getElementById('fmsg').value.trim()   || '(no message)';
+    if(name === '(not provided)' && brand === '(not provided)'){ showToast('Please fill in at least your name and brand ✦'); return; }
+    var text = 'Hi%20Dosa%20Lens!%20%F0%9F%91%8B%0A%0A'
+      + 'Name%3A%20'    + encodeURIComponent(name)  + '%0A'
+      + 'Brand%3A%20'   + encodeURIComponent(brand) + '%0A'
+      + 'Service%3A%20' + encodeURIComponent(svc)   + '%0A'
+      + 'Niche%3A%20'   + encodeURIComponent(niche) + '%0A'
+      + 'Message%3A%20' + encodeURIComponent(msg);
+    window.open('https://wa.me/212695909314?text=' + text, '_blank');
+  }
+  function showToast(msg){
+    var t = document.getElementById('toast'); t.textContent = msg;
+    t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2800);
+  }
+</script>
+</body>
+</html>
